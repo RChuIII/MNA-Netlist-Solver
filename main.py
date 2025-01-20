@@ -1,19 +1,20 @@
-from lib import *
+from src import matrix as m
+from src import components as c
 
-G = Matrix(4,4)
-C = Matrix(4,4)
-b = Matrix(4,1)
+G = m.Matrix(4,4)
+C = m.Matrix(4,4)
+b = m.Matrix(4,1)
 
-I1 = CurrentSource(0,1,1)
-L1 = Inductor(1,0,0.799e-9)
-C1 = Capacitor(1,0,0.319e-6)
-C2 = Capacitor(2,3,63.72e-12)
-C3 = Capacitor(3,0,0.319e-6)
-R1 = Resistor(1,0,5)
-R2 = Resistor(1,2,5)
-R3 = Resistor(3,0,5)
-R4 = Resistor(3,4,5)
-R5 = Resistor(4,0,1e3)
+I1 = c.CurrentSource(0,1,1)
+L1 = c.Inductor(1,0,0.799e-9)
+C1 = c.Capacitor(1,0,0.319e-6)
+C2 = c.Capacitor(2,3,63.72e-12)
+C3 = c.Capacitor(3,0,0.319e-6)
+R1 = c.Resistor(1,0,5)
+R2 = c.Resistor(1,2,5)
+R3 = c.Resistor(3,0,5)
+R4 = c.Resistor(3,4,5)
+R5 = c.Resistor(4,0,1e3)
 
 I1.add_to_netlist(b)
 L1.add_to_netlist(G, C, b)

@@ -1,3 +1,4 @@
+from .matrix import Matrix
 class Component:
     def __init__(self, node_i, node_j, value):
         self.node_i = node_i  # node i connection
