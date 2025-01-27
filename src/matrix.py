@@ -1,11 +1,14 @@
 class Matrix:
-    def __init__(self, n, m):
+    def __init__(self, n, m, symbolic):
         self.n = n  # number of rows
         self.m = m  # number of columns
-        self.matrix = self.create(n, m)
+        self.symbolic = symbolic
+        self.matrix = self.create(n, m, symbolic)
     
-    def create(self, n, m):
+    def create(self, n, m, symbolic=False):
         """Creates an n x m matrix initialized with zeros."""
+        if symbolic:
+            return [[""] * m for _ in range(n)]
         return [[0] * m for _ in range(n)]
     
     def initialize(self, x):
@@ -37,4 +40,9 @@ class Matrix:
         :return: string representation of the matrix
         :rtype: str
         """
-        return "\n".join(["\t".join(map(str, row)) for row in self.matrix])
+        matrix_str = ""
+        max_len = max(len(s) for row in self.matrix for s in row)
+        for row in self.matrix:
+            row_str = "\t".join("0" if item == "" else str(item + (max_len - len(item))*" ").lstrip(" +") for item in row)
+            matrix_str += row_str + "\n"
+        return matrix_str.strip()
