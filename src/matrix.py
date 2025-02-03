@@ -30,6 +30,13 @@ class Matrix:
         self.add_column()
         self.add_row()
 
+    def pad_string(self, og_string, padding) -> str:
+        out_string = og_string
+        if out_string == "":
+            out_string += "0"
+        out_string += " " * (padding - len(out_string))
+        return out_string
+
     def __str__(self):
         """
         Returns a string representation of the matrix.
@@ -41,8 +48,9 @@ class Matrix:
         :rtype: str
         """
         matrix_str = ""
-        max_len = max(len(s) for row in self.matrix for s in row)
+        max_len = max(len(s.lstrip(" +")) for row in self.matrix for s in row) * 2
         for row in self.matrix:
-            row_str = "\t".join("0" if item == "" else str(item + (max_len - len(item))*" ").lstrip(" +") for item in row)
+            # row_str = "\t".join("0" if item == "" else str(item + (max_len - len(item))*" ").lstrip(" +") for item in row)
+            row_str = "".join(self.pad_string(item.lstrip(" +"), max_len) for item in row)
             matrix_str += row_str + "\n"
         return matrix_str.strip()

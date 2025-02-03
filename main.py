@@ -1,5 +1,6 @@
 from src import matrix as m
 from src import components as c
+from src import symbolic_components as sc
 
 G = m.Matrix(3,3, symbolic=True)
 C = m.Matrix(3,3, symbolic=True)
@@ -64,19 +65,19 @@ b = m.Matrix(3,1, symbolic=True)
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
 #------------------------------------------------------------------------
-J1 = c.CurrentSource(0, 1, "I1")
-R1 = c.Resistor(1, 0, "g1")
-VCCS1 = c.VCCS(1, 3, "gm", 1, 2)
-C1 = c.Capacitor(2, 0, "C1")
-R2 = c.Resistor(2, 3, "g2")
-C2 = c.Capacitor(3, 0, "C2")
+J1 = sc.CurrentSource(0, 1, "I1")
+R1 = sc.Resistor(1, 0, "g1")
+VCCS1 = sc.VCCS(1, 3, "gm", 1, 2)
+C1 = sc.Capacitor(2, 0, "C1")
+R2 = sc.Resistor(2, 3, "g2")
+C2 = sc.Capacitor(3, 0, "C2")
 
 J1.add_to_netlist(b)
 R1.add_to_netlist(G)
-VCCS1.add_to_netlist(G)
 C1.add_to_netlist(C)
 R2.add_to_netlist(G)
 C2.add_to_netlist(C)
+VCCS1.add_to_netlist(G)
 
 print(G)
 print()
