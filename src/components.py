@@ -102,19 +102,133 @@ class VCVS(Component):
         self.node_kp = node_kp
 
     def add_to_netlist(self, G: Matrix, C: Matrix, b: Matrix) -> None:
-            G.extend()
-            C.extend()
-            b.add_row()
-            d = G.n - 1
-            if self.node_k != 0:
-                G.matrix[self.node_k - 1][d] += 1
-                G.matrix[d][self.node_k - 1] += 1
+        G.extend()
+        C.extend()
+        b.add_row()
+        d = G.n - 1
+        if self.node_k != 0:
+            G.matrix[self.node_k - 1][d] += 1
+            G.matrix[d][self.node_k - 1] += 1
 
-            if self.node_kp != 0:
-                G.matrix[self.node_kp - 1][d] += -1
-                G.matrix[d][self.node_kp - 1] += -1
-            
-            if self.node_j != 0:
-                G.matrix[d][self.node_j] += -self.A
-            if self.node_jp != 0:
-                G.matrix[d][self.node_jp] += self.A
+        if self.node_kp != 0:
+            G.matrix[self.node_kp - 1][d] += -1
+            G.matrix[d][self.node_kp - 1] += -1
+        
+        if self.node_j != 0:
+            G.matrix[d][self.node_j] += -self.A
+
+        if self.node_jp != 0:
+            G.matrix[d][self.node_jp] += self.A
+
+class CCCS(Component):
+    def __init__(self, node_j, node_jp, alpha, node_k, node_kp):
+        super().__init__(node_j, node_jp, alpha)
+        self.alpha = alpha
+        self.node_j = node_j
+        self.node_jp = node_jp
+        self.node_k = node_k
+        self.node_kp = node_kp
+
+    def add_to_netlist(self, G: Matrix, C: Matrix, b: Matrix) -> None:
+        G.extend()
+        C.extend()
+        b.add_row()
+        d = G.n - 1
+        if self.node_k != 0:
+            G.matrix[self.node_k - 1][d] += f" +{self.alpha}"
+
+        if self.node_kp != 0:
+            G.matrix[self.node_kp - 1][d] += f" -{self.alpha}"
+        
+        if self.node_j != 0:
+            G.matrix[d][self.node_j] += "1"
+            G.matrix[self.node_j][d] += "1"
+
+        if self.node_jp != 0:
+            G.matrix[d][self.node_jp] += "-1"
+            G.matrix[self.node_jp][d] += "-1"
+
+class CCVS(Component):
+    def __init__(self, node_j, node_jp, _lambda, node_k, node_kp):
+        super().__init__(node_j, node_jp, _lambda)
+        self._lambda = _lambda
+        self.node_j = node_j
+        self.node_jp = node_jp
+        self.node_k = node_k
+        self.node_kp = node_kp
+
+    def add_to_netlist(self, G: Matrix, C: Matrix, b: Matrix) -> None:
+        # For controlling current
+        G.extend()
+        C.extend()
+        b.add_row()
+        d = G.n - 1
+
+        # for controlled voltage source's current
+        G.extend()
+        C.extend()
+        b.add_row()
+        d2 = G.n - 1
+
+        G.matrix[d2][d] += -self._lambda
+
+        if self.node_j != 0:
+            G.matrix[d][self.node_j] += 1
+            G.matrix[self.node_j][d] += 1
+
+        if self.node_jp != 0:
+            G.matrix[d][self.node_jp] += -1
+            G.matrix[self.node_jp][d] += -1
+
+        if self.node_k != 0:
+            G.matrix[d2][self.node_k] += 1
+            G.matrix[self.node_k][d2] += 1
+
+        if self.node_kp != 0:
+            G.matrix[d2][self.node_kp] += -1
+            G.matrix[self.node_kp][d2] += -1
+
+class transformer(Component):
+    def __init__(self, node_a, node_b, node_c, node_d, L1, L2, M):
+        super().__init__(node_a, node_b, M)
+        self.node_a = node_a
+        self.node_b = node_b
+        self.node_c = node_c
+        self.node_d = node_d
+        self.L1 = L1
+        self.L2 = L2
+        self.M = M
+    
+    def add_to_netlist(self, G: Matrix, C: Matrix, b: Matrix):
+        # For node A/B transformer coil
+        G.extend()
+        C.extend()
+        b.add_row()
+        d = G.n - 1
+
+        # For node C/D transformer coil
+        G.extend()
+        C.extend()
+        b.add_row()
+        d2 = G.n - 1
+
+        C.matrix[d][d] += -self.L1
+        C.matrix[d][d2] += -self.M
+        C.matrix[d2][d] += -self.M
+        C.matrix[d2][d2] += -self.L2
+
+        if self.node_a != 0:
+            G.matrix[d][self.node_a] += 1
+            G.matrix[self.node_a][d] += 1
+
+        if self.node_b != 0:
+            G.matrix[d][self.node_b] += -1
+            G.matrix[self.node_b][d] += -1
+
+        if self.node_c != 0:
+            G.matrix[d2][self.node_c] += 1
+            G.matrix[self.node_c][d2] += 1
+
+        if self.node_d != 0:
+            G.matrix[d2][self.node_d] += -1
+            G.matrix[self.node_d][d2] += -1
