@@ -17,12 +17,12 @@ class Resistor(Component):
     def add_to_netlist(self, G: Matrix) -> None:
         conductance = 1 / self.resistance # Calculate conductance
         if self.node_i != 0:
-            G.matrix[self.node_i - 1][self.node_i - 1] = G.matrix[self.node_i - 1][self.node_i - 1] + conductance
+            G.matrix[self.node_i - 1][self.node_i - 1] += conductance
         if self.node_j !=0:
-            G.matrix[self.node_j - 1][self.node_j - 1] = G.matrix[self.node_j - 1][self.node_j - 1] + conductance
+            G.matrix[self.node_j - 1][self.node_j - 1] += conductance
         if self.node_i != 0 and self.node_j != 0:
-            G.matrix[self.node_i - 1][self.node_j - 1] = G.matrix[self.node_i - 1][self.node_j - 1] - conductance
-            G.matrix[self.node_j - 1][self.node_i - 1] = G.matrix[self.node_j - 1][self.node_i - 1] - conductance
+            G.matrix[self.node_i - 1][self.node_j - 1] += -conductance
+            G.matrix[self.node_j - 1][self.node_i - 1] += -conductance
 
 class Capacitor(Component):
     def __init__(self, node_i, node_j, capacitance):
@@ -31,12 +31,12 @@ class Capacitor(Component):
     
     def add_to_netlist(self, C: Matrix) -> None:
         if self.node_i != 0:
-            C.matrix[self.node_i - 1][self.node_i - 1] = C.matrix[self.node_i - 1][self.node_i - 1] + self.capacitance
+            C.matrix[self.node_i - 1][self.node_i - 1] += self.capacitance
         if self.node_j !=0:
-            C.matrix[self.node_j - 1][self.node_j - 1] = C.matrix[self.node_j - 1][self.node_j - 1] + self.capacitance
+            C.matrix[self.node_j - 1][self.node_j - 1] += self.capacitance
         if self.node_i != 0 and self.node_j != 0:
-            C.matrix[self.node_i - 1][self.node_j - 1] = C.matrix[self.node_i - 1][self.node_j - 1] - self.capacitance
-            C.matrix[self.node_j - 1][self.node_i - 1] = C.matrix[self.node_j - 1][self.node_i - 1] - self.capacitance
+            C.matrix[self.node_i - 1][self.node_j - 1] += -self.capacitance
+            C.matrix[self.node_j - 1][self.node_i - 1] += -self.capacitance
         
 
 class Inductor(Component):
@@ -49,13 +49,13 @@ class Inductor(Component):
         C.extend()
         b.add_row()
         d = G.n - 1
-        C.matrix[d][d] = -self.inductance
+        C.matrix[d][d] += -self.inductance
         if self.node_i != 0:
-            G.matrix[self.node_i - 1][d] = 1
-            G.matrix[d][self.node_i - 1] = 1
+            G.matrix[self.node_i - 1][d] += 1
+            G.matrix[d][self.node_i - 1] += 1
         if self.node_j !=0:
-            G.matrix[self.node_j - 1][d] = -1
-            G.matrix[d][self.node_j - 1] = -1
+            G.matrix[self.node_j - 1][d] += -1
+            G.matrix[d][self.node_j - 1] += -1
 
 class CurrentSource(Component):
     def __init__(self, node_i, node_j, current):
@@ -64,9 +64,9 @@ class CurrentSource(Component):
 
     def add_to_netlist(self, b: Matrix) -> None:
         if self.node_i != 0:
-            b.matrix[self.node_i - 1][0] = b.matrix[self.node_i - 1][0] - self.current
+            b.matrix[self.node_i - 1][0] += -self.current
         if self.node_j !=0:
-            b.matrix[self.node_j - 1][0] = b.matrix[self.node_j - 1][0] + self.current
+            b.matrix[self.node_j - 1][0] += self.current
 
 class VCCS(Component):
     # Note j nodes are the CONTROLLING nodes, and k nodes are the CONTROLLED nodes
@@ -82,14 +82,14 @@ class VCCS(Component):
     def add_to_netlist(self, G: Matrix) -> None:
         if self.node_k != 0:
             if self.node_j != 0:
-                G.matrix[self.node_k - 1][self.node_j - 1] = G.matrix[self.node_k - 1][self.node_j - 1] + self.gm
+                G.matrix[self.node_k - 1][self.node_j - 1] += self.gm
             if self.node_jp != 0:
-                G.matrix[self.node_k - 1][self.node_jp - 1] = G.matrix[self.node_k - 1][self.node_jp - 1] - self.gm
+                G.matrix[self.node_k - 1][self.node_jp - 1] += -self.gm
         if self.node_kp != 0:
             if self.node_j != 0:
-                G.matrix[self.node_kp - 1][self.node_j - 1] = G.matrix[self.node_kp - 1][self.node_j - 1] - self.gm
+                G.matrix[self.node_kp - 1][self.node_j - 1] += -self.gm
             if self.node_jp != 0:
-                G.matrix[self.node_kp - 1][self.node_jp - 1] = G.matrix[self.node_kp - 1][self.node_jp - 1] + self.gm
+                G.matrix[self.node_kp - 1][self.node_jp - 1] += self.gm
 
 
 class VCVS(Component):
@@ -107,14 +107,14 @@ class VCVS(Component):
             b.add_row()
             d = G.n - 1
             if self.node_k != 0:
-                G.matrix[self.node_k - 1][d] = 1
-                G.matrix[d][self.node_k - 1] = 1
+                G.matrix[self.node_k - 1][d] += 1
+                G.matrix[d][self.node_k - 1] += 1
 
             if self.node_kp != 0:
-                G.matrix[self.node_kp - 1][d] = -1
-                G.matrix[d][self.node_kp - 1] = -1
+                G.matrix[self.node_kp - 1][d] += -1
+                G.matrix[d][self.node_kp - 1] += -1
             
             if self.node_j != 0:
-                G.matrix[d][self.node_j] = -self.A
+                G.matrix[d][self.node_j] += -self.A
             if self.node_jp != 0:
-                G.matrix[d][self.node_jp] = self.A
+                G.matrix[d][self.node_jp] += self.A
