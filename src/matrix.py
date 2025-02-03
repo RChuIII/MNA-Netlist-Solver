@@ -48,9 +48,9 @@ class Matrix:
         :rtype: str
         """
         matrix_str = ""
-        max_len = max(len(s.lstrip(" +")) for row in self.matrix for s in row) * 2
+        max_len = max(len(str(s).lstrip(" +")) for row in self.matrix for s in row) * 2
         for row in self.matrix:
             # row_str = "\t".join("0" if item == "" else str(item + (max_len - len(item))*" ").lstrip(" +") for item in row)
-            row_str = "".join(self.pad_string(item.lstrip(" +"), max_len) for item in row)
+            row_str = "".join(self.pad_string(str(item).lstrip(" +"), max_len) for item in row)
             matrix_str += row_str + "\n"
         return matrix_str.strip()
